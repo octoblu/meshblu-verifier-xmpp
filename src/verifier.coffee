@@ -1,6 +1,7 @@
 _ = require 'lodash'
 async = require 'async'
 MeshbluXmpp = require 'meshblu-xmpp'
+xml2js = require('xml2js').parseString
 
 class Verifier
   constructor: ({@meshbluConfig, @onError, @nonce}) ->
@@ -10,17 +11,21 @@ class Verifier
     @meshblu = new MeshbluXmpp @meshbluConfig
     @meshblu.connect callback
 
-  # _message: (callback) =>
-  #   @meshblu.once 'message', (data) =>
-  #     return callback new Error 'wrong message received' unless data?.payload == @nonce
-  #     callback()
-  #
-  #   message =
-  #     devices: [@meshbluConfig.uuid]
-  #     payload: @nonce
-  #
-  #   @meshblu.message message
-  #
+  _message: (callback) =>
+    @meshblu.on 'message', (data) =>
+      options =
+        explicitArray: false
+      xml2js data, options, (error, data) =>
+        data = JSON.parse data.message['raw-data']
+        return callback new Error 'wrong message received' unless data?.payload == @nonce
+        callback()
+
+    message =
+      devices: [@meshbluConfig.uuid]
+      payload: @nonce
+
+    @meshblu.message message, =>
+
   # _register: (callback) =>
   #   @_connect()
   #   @meshblu.connect (error) =>
