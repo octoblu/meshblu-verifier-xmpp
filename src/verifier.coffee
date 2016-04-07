@@ -41,24 +41,16 @@ class Verifier
   #
   #     @meshblu.register type: 'meshblu:verifier'
 
-  # _update: (callback) =>
-  #   @meshblu.once 'whoami', (data) =>
-  #     return callback new Error 'update failed' unless data?.nonce == @nonce
-  #     callback null, data
-  #
-  #   @meshblu.once 'updated', (data) =>
-  #     @meshblu.whoami()
-  #
-  #   @meshblu.removeAllListeners 'error'
-  #   @meshblu.once 'error', (data) =>
-  #     callback new Error 'Update Error:', JSON.stringify(data, null, 2)
-  #
-  #   query = uuid: @meshbluConfig.uuid
-  #   params =
-  #     uuid: @meshbluConfig.uuid
-  #     nonce: @nonce
-  #
-  #   @meshblu.update(query, params)
+  _update: (callback) =>
+    params =
+      $set:
+        nonce: @nonce
+
+    @meshblu.update @meshbluConfig.uuid, params, (error) =>
+      return callback error if error?
+      @meshblu.whoami (error, data) =>
+        return callback new Error 'update failed' unless data?.nonce == @nonce
+        callback null, data
 
   _whoami: (callback) =>
     @meshblu.whoami callback
@@ -80,7 +72,7 @@ class Verifier
       # @_register
       @_whoami
       # @_message
-      # @_update
+      @_update
       # @_unregister
     ], (error) =>
       @meshblu.close()
