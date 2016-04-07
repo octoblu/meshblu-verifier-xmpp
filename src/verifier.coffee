@@ -12,13 +12,9 @@ class Verifier
     @meshblu.connect callback
 
   _message: (callback) =>
-    @meshblu.on 'message', (data) =>
-      options =
-        explicitArray: false
-      xml2js data, options, (error, data) =>
-        data = JSON.parse data.message['raw-data']
-        return callback new Error 'wrong message received' unless data?.payload == @nonce
-        callback()
+    @meshblu.on 'message', ({data}) =>
+      return callback new Error 'wrong message received' unless data?.payload == @nonce
+      callback()
 
     message =
       devices: [@meshbluConfig.uuid]
@@ -76,7 +72,7 @@ class Verifier
       @_connect
       # @_register
       @_whoami
-      # @_message
+      @_message
       @_update
       # @_unregister
     ], (error) =>

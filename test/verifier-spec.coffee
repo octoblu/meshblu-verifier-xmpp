@@ -25,6 +25,10 @@ describe 'Verifier', ->
         ).cnode responseNode
 
       onStanza = (request) =>
+        if request.name == 'message'
+          console.log 'message', request
+          return
+
         metadata = request.getChild('request').getChild('metadata')
 
         xml2js metadata.toString(), explicitArray: false, (error, job) =>
@@ -34,6 +38,20 @@ describe 'Verifier', ->
 
           if job.metadata.jobType == 'UpdateDevice'
             @updateHandler job, (response) =>
+              return _sendResponse {request, response}
+
+          if job.metadata.jobType == 'SendMessage'
+            @messageHandler job, (response) =>
+              client.send new xmpp.Stanza('message',
+                to: 'some-device@meshblu.octoblu.com'
+                from: 'meshblu.octoblu.com'
+                type: 'normal'
+              ).cnode(ltx.parse """
+                <metadata />
+              """).up().cnode(ltx.parse """
+                <raw-data>#{response.rawData}</raw-data>
+              """)
+
               return _sendResponse {request, response}
 
       client.on 'stanza', onStanza
@@ -69,7 +87,7 @@ describe 'Verifier', ->
         expect(@error).not.to.exist
         # expect(@registerHandler).to.be.called
         expect(@whoamiHandler).to.be.called
-        # expect(@messageHandler).to.be.called
+        expect(@messageHandler).to.be.called
         expect(@updateHandler).to.be.called
         # expect(@unregisterHandler).to.be.called
 
