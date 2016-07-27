@@ -1,6 +1,6 @@
 {
   "name": "meshblu-verifier-xmpp",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Verify Meshblu over xmpp",
   "main": "index.js",
   "scripts": {

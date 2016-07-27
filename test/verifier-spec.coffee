@@ -26,7 +26,6 @@ describe 'Verifier', ->
 
       onStanza = (request) =>
         if request.name == 'message'
-          console.log 'message', request
           return
 
         metadata = request.getChild('request').getChild('metadata')

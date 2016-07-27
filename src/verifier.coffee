@@ -5,17 +5,14 @@ xml2js = require('xml2js').parseString
 
 class Verifier
   constructor: ({@meshbluConfig, @onError, @nonce}) ->
-    console.log {@meshbluConfig}
     @nonce ?= Date.now()
 
   _connect: (callback) =>
-    console.log 'connect'
     @meshblu = new MeshbluXmpp @meshbluConfig
     @meshblu.connect callback
 
   _message: (callback) =>
     @meshblu.on 'message', ({data}) =>
-      console.log 'got message'
       return callback new Error 'wrong message received' unless data?.payload == @nonce
       callback()
 
@@ -24,7 +21,6 @@ class Verifier
       payload: @nonce
 
     @meshblu.message message, =>
-      console.log 'sent message'
 
   # _register: (callback) =>
   #   @_connect()
@@ -58,7 +54,6 @@ class Verifier
         callback null, data
 
   _whoami: (callback) =>
-    console.log 'whoami'
     @meshblu.whoami callback
 
   # _unregister: (callback) =>
