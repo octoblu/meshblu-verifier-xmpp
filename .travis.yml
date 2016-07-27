@@ -1,6 +1,9 @@
+branches:
+  only:
+  - "/^v[0-9]/"
 language: node_js
 node_js:
-- '5'
+- '6'
 addons:
   code_climate:
     repo_token: 919f23005f215de7e74cf0af258aba3a242cc64684810f7151ad6a26172caba5
