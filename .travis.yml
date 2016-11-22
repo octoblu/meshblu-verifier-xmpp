@@ -1,13 +1,20 @@
 language: node_js
 node_js:
   - '6'
-addons:
-  code_climate:
-    repo_token: 919f23005f215de7e74cf0af258aba3a242cc64684810f7151ad6a26172caba5
-before_script:
-  - npm install -g codeclimate-test-reporter
-after_script:
-  - codeclimate-test-reporter < coverage/lcov.info
+branches:
+  only:
+    - '/^v[0-9]/'
+before_install:
+- npm install --global yarn
+install:
+- yarn install
+script:
+- yarn test
+after_success:
+  - yarn coverage
+  - 'yarn mocha:json'
+  - 'bash <(curl -s https://codecov.io/bash)'
+  - 'bash <(curl -s https://codecov.octoblu.com/bash)'
 deploy:
   provider: npm
   email: serveradmin@octoblu.com
@@ -17,14 +24,6 @@ deploy:
   'on':
     tags: true
     branches: true
-after_success:
-  - npm run coverage
-  - 'npm run mocha:json'
-  - 'bash <(curl -s https://codecov.io/bash)'
-  - 'bash <(curl -s https://codecov.octoblu.com/bash)'
-branches:
-  only:
-    - '/^v[0-9]/'
 notifications:
   webhooks:
     - 'https://beekeeper.octoblu.com/webhooks/travis:ci'
